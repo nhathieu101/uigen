@@ -1,11 +1,9 @@
-import { anthropic } from "@ai-sdk/anthropic";
+import { createAnthropic } from "@ai-sdk/anthropic";
 import {
   LanguageModelV1,
   LanguageModelV1StreamPart,
   LanguageModelV1Message,
 } from "@ai-sdk/provider";
-
-const MODEL = "claude-haiku-4-5";
 
 export class MockLanguageModel implements LanguageModelV1 {
   readonly specificationVersion = "v1" as const;
@@ -514,5 +512,14 @@ export function getLanguageModel() {
     return new MockLanguageModel("mock-claude-sonnet-4-0");
   }
 
-  return anthropic(MODEL);
+  const baseURL = "https://llmproxy.vexere.net/v1" // process.env.ANTHROPIC_BASE_URL;
+  const model = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-20250514";
+
+  console.log("[provider] baseURL:", baseURL, "model:", model);
+
+  const anthropic = createAnthropic({
+    ...(baseURL ? { baseURL } : {}),
+  });
+
+  return anthropic(model);
 }
